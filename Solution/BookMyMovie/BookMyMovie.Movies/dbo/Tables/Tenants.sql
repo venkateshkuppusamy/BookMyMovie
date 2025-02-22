@@ -1,0 +1,10 @@
+﻿-- Tenants Table
+CREATE TABLE Tenants (
+    TenantID INT IDENTITY(1,1) PRIMARY KEY,
+    TenantName NVARCHAR(255) NOT NULL,
+    CreatedBy NVARCHAR(255) NOT NULL,
+    CreateDateTime DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedBy NVARCHAR(255),
+    UpdateDateTime DATETIME,
+    TransactionID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID()
+);

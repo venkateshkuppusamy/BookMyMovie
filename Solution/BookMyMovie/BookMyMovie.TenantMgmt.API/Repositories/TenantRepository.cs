@@ -2,6 +2,11 @@
 using BookMyMovie.TenantMgmt.API.Repositories.Interfaces;
 using System.Data;
 using Dapper;
+using System.Diagnostics;
+using BookMyMovie.TenantMgmt.API.Business.Domain;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Transactions;
+using BookMyMovie.TenantMgmt.API.Repositories.Helper;
 
 namespace BookMyMovie.TenantMgmt.API.Repositories
 {
@@ -14,13 +19,29 @@ namespace BookMyMovie.TenantMgmt.API.Repositories
             _dbConnection = dbConnection;
         }
 
-        public async Task<IEnumerable<TenantEntity>> GetAllAsync()
+        public async Task<PaginatedList<TenantEntity>> GetAllAsync(PaginationParameters parameters)
         {
-            var query = "SELECT * FROM Tenants";
-            return await _dbConnection.QueryAsync<TenantEntity>(query);
+            var countSql = "SELECT COUNT(*) FROM Tenants";
+            var totalCount = await _dbConnection.ExecuteScalarAsync<int>(countSql);
+
+            string columnName = EntityMapHelper.GetColumnName<TenantEntity>(parameters.OrderBy); 
+
+            var query = $@"SELECT * FROM Tenants ORDER BY {columnName} {parameters.SortOrder}
+                        OFFSET @Offset ROWS
+                        FETCH NEXT @PageSize ROWS ONLY";
+            var queryParameters = new
+            {
+                Offset = (parameters.PageNumber - 1) * parameters.PageSize,
+                parameters.PageSize,
+                parameters.OrderBy,
+                parameters.SortOrder
+            };
+
+            var tenants = await _dbConnection.QueryAsync<TenantEntity>(query, queryParameters);
+            return new PaginatedList<TenantEntity>(tenants, totalCount, parameters.PageNumber, parameters.PageSize);
         }
 
-        public async Task<TenantEntity> GetByIdAsync(int id)
+        public async Task<TenantEntity?> GetByIdAsync(int id)
         {
             var query = "SELECT * FROM Tenants WHERE TenantID = @Id";
             return await _dbConnection.QuerySingleOrDefaultAsync<TenantEntity>(query, new { Id = id });

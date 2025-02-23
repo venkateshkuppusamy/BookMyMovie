@@ -20,16 +20,17 @@ namespace BookMyMovie.TenantMgmt.API.Business
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Tenant>> GetAllAsync()
+        public async Task<PaginatedList<Tenant>> GetAllAsync(PaginationParameters parameters)
         {
-            var tenants = await _tenantRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<Tenant>>(tenants);
+            var tenants = await _tenantRepository.GetAllAsync(parameters);
+            return _mapper.Map<PaginatedList<Tenant>>(tenants);
+            
         }
 
-        public async Task<Tenant> GetByIdAsync(int id)
+        public async Task<Tenant?> GetByIdAsync(int id)
         {
             var tenant = await _tenantRepository.GetByIdAsync(id);
-            return _mapper.Map<Tenant>(tenant);
+            return _mapper.Map<Tenant?>(tenant);
         }
 
         public async Task<int> CreateAsync(Tenant tenant)

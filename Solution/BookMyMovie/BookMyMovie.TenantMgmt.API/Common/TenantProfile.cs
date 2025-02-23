@@ -12,6 +12,9 @@ namespace BookMyMovie.TenantMgmt.API.Common
         {
             CreateMap<Tenant, TenantDto>().ReverseMap();
             CreateMap<Tenant, TenantEntity>().ReverseMap();
+            CreateMap<TenantEntity, Tenant>();
+            CreateMap(typeof(PaginatedList<>), typeof(PaginatedList<>))
+           .ForMember("Items", opt => opt.MapFrom("Items"));
         }
     }
 }

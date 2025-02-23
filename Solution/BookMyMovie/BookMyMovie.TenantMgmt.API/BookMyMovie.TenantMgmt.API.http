@@ -1,0 +1,6 @@
+@BookMyMovie.TenantMgmt.API_HostAddress = http://localhost:5044
+
+GET {{BookMyMovie.TenantMgmt.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
